@@ -1,0 +1,23 @@
+# Production Dockerfile for webbook-mizion-api
+# Use a current Node LTS
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install dependencies first (use package-lock if present)
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy app sources
+COPY . .
+
+# Create non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Expose default port (matches server.js)
+EXPOSE 4000
+
+# Use environment variable for PORT; default in code is 4000
+CMD ["node", "server.js"]
